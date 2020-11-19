@@ -1,0 +1,127 @@
+
+var firebaseData = [];
+var numId = 1;
+setTimeout(function () {
+	var firebaseConfig = {
+    apiKey: "AIzaSyACSgbAIM01KGI_twhGzX1FABWyhhCS3Eo",
+    authDomain: "test-6ee2a.firebaseapp.com",
+    databaseURL: "https://test-6ee2a.firebaseio.com",
+    projectId: "test-6ee2a",
+    storageBucket: "test-6ee2a.appspot.com",
+    messagingSenderId: "448582725279",
+    appId: "1:448582725279:web:5b51e534c45a48ff"
+  };
+  // Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.database().ref('newRef/').on('value', function(snapshot) {
+	   firebaseData = snapshot.val();
+	});
+	firebase.database().ref('RefCounter/').on('value', function(snapshot) {
+		   var dataVal = snapshot.val();
+		  if (dataVal == undefined){
+		  	return
+		  }else{
+		    		numId = dataVal["Counter"] 
+		  }
+		   
+		});
+},10000)
+
+var priceProduct = {} ;
+ function calculateTotalPrice (month){
+ 	var k = $("#Url").val();
+
+ 	$.getJSON('/' + k + '/DOSSIER/CalculTotalRembourser?NbEcheance=' + month ,
+        function (data) {
+                priceProduct["price" + month] = data.TotalRembourser
+                //console.log(data)  
+                if (month  == 30 ) {
+					if(priceProduct[0].val){
+						console.log("empty")
+					}else{
+						setTimeout(function (){
+							firebase.database().ref("newRef/" + numId ).update(priceProduct)
+							firebase.database().ref("RefCounter/").update({
+								Counter : numId,
+							})
+							numId = numId+1
+							if (numId > 800) {
+								   firebase.database().ref("RefCounter/").update({
+									Counter : 1,
+								})
+							   }
+							getPriceREfrence(firebaseData[numId].data)
+						},4000)
+					}
+                	
+                		
+                }
+
+        }
+    );
+
+ }
+ function getPriceREfrence(arg){
+ 	var clean = "DXCallbackName=Ligne_Produit_Partial_V1&DXCallbackArgument=c0%3AKV%7C2%3B%5B%5D%3BCR%7C18%3B%7B%22ctrlWidth%22%3A1028%7D%3BGB%7C11%3B9%7CADDNEWROW%3B&Ligne_Produit_Partial_V1=%7B%26quot%3BlastMultiSelectIndex%26quot%3B%3A%26quot%3B%26quot%3B%2C%26quot%3Bselection%26quot%3B%3A%26quot%3B%26quot%3B%2C%26quot%3BcallbackState%26quot%3B%3A%26quot%3BBwEHAQIFU3RhdGUHeQcGBwACAQcBAgEHAgIBBwMCAQb%2F%2FwIABwQCAQcABwAHAQcABwECAAAAAACAVkAHAAIABQAAAIAJAg5pZExpZ25lUHJvZHVpdAcBAg5pZExpZ25lUHJvZHVpdAMJAgACAAMHBAIABwACAQcABwACAAIBBwAHAAcABwA%3D%26quot%3B%2C%26quot%3BresizingState%26quot%3B%3A%26quot%3B%7B%5C%26quot%3BctrlWidth%5C%26quot%3B%3A1028%7D%26quot%3B%2C%26quot%3Bkeys%26quot%3B%3A%5B%5D%7D&DXMVCEditorsValues=%7B%7D"
+	var xhttp = new XMLHttpRequest
+	var xhttpD = new XMLHttpRequest
+	xhttpD.open("POST",'/vpf_acm/Dossier/Ligne_Produit_Partial_V1_Delete')
+	xhttpD.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+	xhttpD.send(clean)
+	console.log("Deleted Refrences ... ")
+	xhttp.open("POST",'/vpf_acm/Dossier/Ligne_Produit_Partial_V1_ADDNEW')
+	xhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+	xhttp.send(arg)
+	console.log("data has been sent ! "+numId)
+	console.log("witing time ..... ")
+	setTimeout(function(){
+        setTimeout(function(){
+            calculateTotalPrice (12)
+        },6000)
+        setTimeout(function(){
+            calculateTotalPrice (13)
+        },7000)
+        setTimeout(function(){
+            calculateTotalPrice (18)
+        },8000)
+        setTimeout(function(){
+            calculateTotalPrice (24)
+        },9000)
+        setTimeout(function(){
+            calculateTotalPrice (30)
+        },10000)
+
+    },10000)
+
+	
+}
+
+var refrence , idRef , Description ,data,refDecoded  ;
+function sendToFirebase() {
+	firebase.database().ref("newRef/" + idRef ).set({
+		refrence : refrence,
+		Description : Description,
+		data:data,
+	})
+}
+
+function fireUpData() {
+	// for each elem will send to firtebase 
+	for (var i = 0 ; i <= 801; i++) {
+		data = document.getElementById("A1_"+i+"_14").innerHTML
+		refrence = document.getElementById("A1_"+i+"_0").innerHTML
+		Description = document.getElementById("A1_"+i+"_2").innerHTML
+		idRef= document.getElementById("A1_"+i+"_3").innerHTML
+		sendToFirebase()
+	}
+}
+setTimeout(function (){
+	getPriceREfrence(firebaseData[numId].data)
+},18000)
+
+function myImacros() {try{var e_m64 = "VkVSU0lPTiBCVUlMRD0xMDAyMTQ1MApUQUIgT1BFTgpUQUIgVD0yClVSTCBHT1RPPWh0dHA6Ly80MS4xMTEuMTMxLjE3OC9WUEZfQUNNL0RPU1NJRVIvTGlzdERvc3NpZXIKV0FJVCBTRUNPTkRTID0gNTAKVEFCIENMT1NF", n64 = "JTIzQ3VycmVudC5paW0=";if(!/^(?:chrome|https?|file)/.test(location)){alert('iMacros: Open webpage to run a macro.');return;}var macro = {};macro.source = decodeURIComponent(atob(e_m64));macro.name = decodeURIComponent(atob(n64));var evt = document.createEvent("CustomEvent");evt.initCustomEvent("iMacrosRunMacro", true, true, macro);window.dispatchEvent(evt);}catch(e){alert('iMacros Bookmarklet error: '+e.toString());}} ;
+
+setInterval(function () {
+	// body...
+	myImacros()
+},100000)
